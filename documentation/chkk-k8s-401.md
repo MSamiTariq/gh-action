@@ -1,5 +1,5 @@
 ---
-title: Syncing Docs via CLI / GitHub
+title: CoreDNS health plugin not enabled
 category: 655c49ff76fdad0024723139
 ---
 

@@ -1,7 +1,8 @@
 ---
-title: Restrict assigning additional capabilities to containers beyond the default set
+title: PodSecurityPolicy should be configured to restrict assigning additional capabilities to containers
 category: 655c49ff76fdad0024723139
 ---
+
 ## How to fix it, long-term fix? (Remediation)
 
 Configure PodSecurityPolicy to assign containers with limited capabilities.
@@ -12,7 +13,7 @@ kind: PodSecurityPolicy
 metadata:
   name: <policy name>
 spec:
-- allowedCapabilities:
+  - allowedCapabilities:
 ```
 
 ## Why does this exist? (Root Cause)
