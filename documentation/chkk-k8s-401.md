@@ -2,6 +2,7 @@
 title: Syncing Docs via CLI / GitHub
 category: 655c49ff76fdad0024723139
 ---
+
 ## How to fix it, long-term fix? (Remediation)
 
 Assign capabilities to containers within the default set. When _drop_ includes ALL, all of the root privileges are disabled for that container.
