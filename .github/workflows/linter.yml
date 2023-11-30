@@ -14,18 +14,19 @@ jobs:
         with:
           fetch-depth: 0 # To retrieve the current commit.
 
-      - name: Get changed files
-        id: changed-files
-        uses: tj-actions/changed-files@v40
+      # - name: Get changed files
+      #   id: changed-files
+      #   uses: tj-actions/changed-files@v40
 
-        # To compare changes between the current commit and the last pushed remote commit set `since_last_remote_commit: true`
-        with:
-          since_last_remote_commit: true
+      #   # To compare changes between the current commit and the last pushed remote commit set `since_last_remote_commit: true`
+      #   with:
+      #     since_last_remote_commit: true
 
       - name: Get all changed markdown files
         id: changed-markdown-files
         uses: tj-actions/changed-files@v40
         with:
+          since_last_remote_commit: true
           files: |
             **.md
 
