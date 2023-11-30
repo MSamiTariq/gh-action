@@ -1,0 +1,33 @@
+name: Check PR for Specific Words in Markdown Files
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  check_words:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Check for specific words in Markdown files
+        run: |
+          # Define the words to check for
+          forbidden_words=("availability risk" "Availability risk" "Latent availability risk" "addon" "add-on" "Add on" "Add-on")
+
+          # Get the list of modified Markdown files in the PR
+          md_files_changed=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '\.md$')
+
+          # Check each modified Markdown file for forbidden words
+          for file in $md_files_changed; do
+            for word in "${forbidden_words[@]}"; do
+              if grep -q "$word" "$file"; then
+                echo "Error: Found forbidden word '$word' in Markdown file '$file'"
+                exit 1
+              fi
+            done
+          done
