@@ -1,46 +1,41 @@
-name: PR Validation
+name: Check modified MD files for prohibited phrases
 
 on:
   pull_request:
-    types:
-      - opened
-      - synchronize
+    types: [opened, synchronize]
 
 jobs:
-  check-pr:
+  check-phrases:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
-      - name: Check modified files
-        id: check-files
-        run: |
-          # Get the list of modified files
-          files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+      # Install the ripgrep tool for searching files
+      - name: Install ripgrep
+        run: sudo apt update && sudo apt install ripgrep
 
-          # Filter files with .md extension
-          md_files=$(echo "$files" | grep '\.md$' || true)
+      # Identify modified MD files in the pull request
+      - name: Get modified MD files
+        id: modified-md-files
+        run: git diff --name-only HEAD~1..HEAD | grep '\.md$'
 
-          # Set an output variable with the list of .md files
-          echo "::set-output name=md_files::$md_files"
-
-      - name: Check for forbidden phrases
+      # Check each modified MD file for prohibited phrases
+      - name: Check for prohibited phrases
         id: check-phrases
+        if: steps.modified-md-files.outputs.stdout != ''
         run: |
-          forbidden_phrases=("availability risk")
+          prohibited_phrases="phrase1 phrase2 phrase3"
+          modified_md_files=$(echo "${{ steps.modified-md-files.outputs.stdout }}")
 
-          # Check for forbidden phrases in each .md file
-          for file in ${{ steps.check-files.outputs.md_files }}; do
-            for phrase in "${forbidden_phrases[@]}"; do
-              if grep -q "$phrase" "$file"; then
-                echo "Error: Forbidden phrase '$phrase' found in file $file"
-                echo "::set-output name=forbidden_found::true"
-              fi
-            done
+          for file in $modified_md_files; do
+            if rg -F "${prohibited_phrases}" "$file"; then
+              echo "Prohibited phrase found in file: $file"
+              exit 1
+            fi
           done
 
-      - name: Fail if forbidden phrases found
-        if: steps.check-phrases.outputs.forbidden_found == 'true'
-        run: exit 1
+      # Set the job failure status if any prohibited phrases are found
+      - name: Set job failure if phrases found
+        id: set-job-failure
+        if: steps.check-phrases.outcome != 'success'
+        run: echo "::set-output name=failure::Prohibited phrases found in modified MD files"
