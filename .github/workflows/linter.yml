@@ -43,6 +43,14 @@ jobs:
 
       - name: List all changed files markdown files
         run: |
+          forbidden_phrases=("phrase1" "phrase2" "phrase3")
+
+          # Check for forbidden phrases in each .md file
           for file in ${{ steps.changed-markdown-files.outputs.all_changed_files }}; do
-            echo "$file was changed"
+            for phrase in "${forbidden_phrases[@]}"; do
+              if grep -q "$phrase" "$file"; then
+                echo "Forbidden phrase '$phrase' found in $file"
+                exit 1
+              fi
+            done
           done
