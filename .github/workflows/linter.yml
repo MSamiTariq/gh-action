@@ -1,41 +1,48 @@
-name: Check modified MD files for prohibited phrases
+name: CI
 
 on:
   pull_request:
-    types: [opened, synchronize]
+    branches:
+      - main
 
 jobs:
-  check-phrases:
-    runs-on: ubuntu-latest
+  # ------------------------------------------------------------------------------------------------------------------------------------------------
+  # Event `pull_request`: Compare the last commit of the main branch or last remote commit of the PR branch -> to the current commit of a PR branch.
+  # ------------------------------------------------------------------------------------------------------------------------------------------------
+  changed_files:
+    runs-on: ubuntu-latest # windows-latest || macos-latest
+    name: Test changed-files
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # OR "2" -> To retrieve the preceding commit.
 
-      # Install the ripgrep tool for searching files
-      - name: Install ripgrep
-        run: sudo apt update && sudo apt install ripgrep
+      # Example 1
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v40
 
-      # Identify modified MD files in the pull request
-      - name: Get modified MD files
-        id: modified-md-files
-        run: git diff --name-only HEAD~1 HEAD | grep '\.md$'
+        # To compare changes between the current commit and the last pushed remote commit set `since_last_remote_commit: true`. e.g
+        with:
+          since_last_remote_commit: true
 
-      # Check each modified MD file for prohibited phrases
-      - name: Check for prohibited phrases
-        id: check-phrases
-        if: steps.modified-md-files.outputs.stdout != ''
+      - name: List all changed files
         run: |
-          prohibited_phrases="phrase1 phrase2 phrase3"
-          modified_md_files=$(echo "${{ steps.modified-md-files.outputs.stdout }}")
-
-          for file in $modified_md_files; do
-            if rg -F "${prohibited_phrases}" "$file"; then
-              echo "Prohibited phrase found in file: $file"
-              exit 1
-            fi
+          for file in ${{ steps.changed-files.outputs.all_changed_files }}; do
+            echo "$file was changed"
           done
 
-      # Set the job failure status if any prohibited phrases are found
-      - name: Set job failure if phrases found
-        id: set-job-failure
-        if: steps.check-phrases.outcome != 'success'
-        run: echo "::set-output name=failure::Prohibited phrases found in modified MD files"
+      # Example 2
+      - name: Get all changed markdown files
+        id: changed-markdown-files
+        uses: tj-actions/changed-files@v40
+        with:
+          files: |
+            **.md
+        # Avoid using single or double quotes for multiline patterns
+
+      - name: List all changed files markdown files
+        run: |
+          for file in ${{ steps.changed-markdown-files.outputs.all_changed_files }}; do
+            echo "$file was changed"
+          done
