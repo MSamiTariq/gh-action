@@ -10,9 +10,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Checkout PR branch
-        run: git checkout ${{ github.event.pull_request.head.ref }}
-
       # Install the ripgrep tool for searching files
       - name: Install ripgrep
         run: sudo apt update && sudo apt install ripgrep
@@ -20,7 +17,7 @@ jobs:
       # Identify modified MD files in the pull request
       - name: Get modified MD files
         id: modified-md-files
-        run: git diff --name-only HEAD~1..HEAD | grep '\.md$'
+        run: git diff --name-only HEAD~1 HEAD | grep '\.md$'
 
       # Check each modified MD file for prohibited phrases
       - name: Check for prohibited phrases
