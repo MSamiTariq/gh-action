@@ -1,4 +1,4 @@
-name: CI
+name: Linter to check for spelling of phrases in markdown files
 
 on:
   pull_request:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  changed_files:
+  linter:
     runs-on: ubuntu-latest
     name: Linter to check for spelling of phrases in markdown files
     steps:
@@ -18,7 +18,7 @@ jobs:
         id: changed-markdown-files
         uses: tj-actions/changed-files@v40
         with:
-        # To compare changes between the current commit and the last pushed remote commit set `since_last_remote_commit: true`
+          # To compare changes between the current commit and the last pushed remote commit set `since_last_remote_commit: true`
           since_last_remote_commit: true
           files: |
             **.md
