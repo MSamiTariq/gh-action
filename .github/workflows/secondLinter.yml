@@ -1,0 +1,42 @@
+name: Linter to check for spelling of phrases in markdown files
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  linter:
+    runs-on: ubuntu-latest
+    name: Linter to check for spelling of phrases in markdown files
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # To retrieve the current commit.
+
+      - name: Get all changed files in the pull request
+        id: changed-files
+        run: |
+          # Get a list of all files modified in the pull request
+          files=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+
+          # Set the list of changed files as an output
+          echo "::set-output name=changed_files::$files"
+
+      - name: Read and check wrongly spelled words
+        id: read-and-check-words
+        run: |
+          # Read and check wrongly spelled words from the file
+          mapfile -t wrongly_spelled_words < .github/wrongly_spelled_words.txt
+          echo "Wrongly spelled words: ${wrongly_spelled_words[*]}"
+
+          # Check for wrongly spelled words in each modified file
+          for file in ${{ steps.changed-files.outputs.changed_files }}; do
+            for word in "${wrongly_spelled_words[@]}"; do
+              if grep -q "$word" "$file"; then
+                echo "Wrong spelling of '$word' found in $file"
+                exit 1
+              fi
+            done
+          done
+        shell: bash
