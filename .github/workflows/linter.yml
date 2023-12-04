@@ -18,8 +18,6 @@ jobs:
         id: changed-markdown-files
         uses: tj-actions/changed-files@v40
         with:
-          # To compare changes between the current commit and the last pushed remote commit set `since_last_remote_commit: true`
-          # since_last_remote_commit: true
           files: |
             **.md
 
@@ -28,7 +26,6 @@ jobs:
         run: |
           # Read and check wrongly spelled words from the file
           mapfile -t wrongly_spelled_words < .github/wrongly_spelled_words.txt
-          echo "Wrongly spelled words: ${wrongly_spelled_words[*]}"
 
           # Check for wrongly spelled words in each .md file
           for file in ${{ steps.changed-markdown-files.outputs.all_changed_files }}; do
