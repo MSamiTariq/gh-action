@@ -18,7 +18,9 @@ jobs:
         id: read-wrongly-spelled-words
         run: |
           mapfile -t wrongly_spelled_words < .github/wrongly_spelled_words.txt
-          echo "Wrongly spelled words: ${wrongly_spelled_words[*]}"
+          for word in "${wrongly_spelled_words[@]}"; do
+            echo "Wrongly spelled word: $word"
+          done
         shell: bash
 
       - name: Get all changed markdown files
@@ -33,10 +35,9 @@ jobs:
         run: |
           # Check for wrongly spelled words in each .md file
           for file in ${{ steps.changed-markdown-files.outputs.all_changed_files }}; do
-            for phrase in "${wrongly_spelled_words[@]}"; do
-              echo $phrase
-              if grep -q "$phrase" "$file"; then
-                echo "Wrong spelling of '$phrase' found in $file"
+            for word in "${wrongly_spelled_words[@]}"; do
+              if grep -q "$word" "$file"; then
+                echo "Wrong spelling of '$word' found in $file"
                 exit 1
               fi
             done
