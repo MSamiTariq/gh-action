@@ -1,4 +1,4 @@
-name: CI
+name: Linter to check for spelling of phrases in markdown files
 
 on:
   pull_request:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  changed_files:
+  linter:
     runs-on: ubuntu-latest
     name: Linter to check for spelling of phrases in markdown files
     steps:
@@ -18,21 +18,22 @@ jobs:
         id: changed-markdown-files
         uses: tj-actions/changed-files@v40
         with:
-        # To compare changes between the current commit and the last pushed remote commit set `since_last_remote_commit: true`
-          since_last_remote_commit: true
           files: |
             **.md
 
-      - name: Check for wrongly spelled words in all of the changed markdown files
+      - name: Read and check wrongly spelled words
+        id: read-and-check-words
         run: |
-          wrongly_spelled_words=("availability risk" "Availability risk" "Latent availability risk" "addon" "Add-on" "add-on" "add on")
+          # Read and check wrongly spelled words from the file
+          mapfile -t wrongly_spelled_words < .github/wrongly_spelled_words.txt
 
           # Check for wrongly spelled words in each .md file
           for file in ${{ steps.changed-markdown-files.outputs.all_changed_files }}; do
-            for phrase in "${wrongly_spelled_words[@]}"; do
-              if grep -q "$phrase" "$file"; then
-                echo "Wrong spelling of '$phrase' found in $file"
+            for word in "${wrongly_spelled_words[@]}"; do
+              if grep -q "$word" "$file"; then
+                echo "Wrong spelling of '$word' found in $file"
                 exit 1
               fi
             done
           done
+        shell: bash
