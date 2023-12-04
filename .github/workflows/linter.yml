@@ -14,19 +14,23 @@ jobs:
         with:
           fetch-depth: 0 # To retrieve the current commit.
 
+      - name: Read wrongly spelled words from file
+        id: read-wrongly-spelled-words
+        run: |
+          mapfile -t wrongly_spelled_words < .github/wrongly_spelled_words.txt
+          echo "Wrongly spelled words: ${wrongly_spelled_words[*]}"
+        shell: bash
+
       - name: Get all changed markdown files
         id: changed-markdown-files
         uses: tj-actions/changed-files@v40
         with:
-          # To compare changes between the current commit and the last pushed remote commit set `since_last_remote_commit: true`
           since_last_remote_commit: true
           files: |
             **.md
 
       - name: Check for wrongly spelled words in all of the changed markdown files
         run: |
-          wrongly_spelled_words=("availability risk" "Availability risk" "Latent availability risk" "addon" "Add-on" "add-on" "add on")
-
           # Check for wrongly spelled words in each .md file
           for file in ${{ steps.changed-markdown-files.outputs.all_changed_files }}; do
             for phrase in "${wrongly_spelled_words[@]}"; do
