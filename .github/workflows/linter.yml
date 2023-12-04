@@ -34,9 +34,7 @@ jobs:
       - name: Check for wrongly spelled words in all of the changed markdown files
         run: |
           # Check for wrongly spelled words in each .md file
-          for word in "${wrongly_spelled_words[@]}"; do
-            echo "Wrongly spelled word: $word"
-          done
+          echo "Wrongly spelled words: ${wrongly_spelled_words[*]}"
           for file in ${{ steps.changed-markdown-files.outputs.all_changed_files }}; do
             for word in "${wrongly_spelled_words[@]}"; do
               if grep -q "$word" "$file"; then
