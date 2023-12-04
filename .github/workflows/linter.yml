@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2 # To retrieve the current commit.
+          fetch-depth: 0 # To retrieve the current commit.
 
       - name: Read and check wrongly spelled words
         id: read-and-check-words
